@@ -1,6 +1,3 @@
-using System;
-using System.IO;
-
 static bool MatchPattern(string inputLine, string pattern)
 {
     if (pattern.Length == 1)
@@ -25,13 +22,12 @@ string inputLine = Console.In.ReadToEnd();
 // You can use print statements as follows for debugging, they'll be visible when running tests.
 Console.WriteLine("Logs from your program will appear here!");
 
-// Uncomment this block to pass the first stage
-// 
-// if (MatchPattern(inputLine, pattern))
-// {
-//     Environment.Exit(0);
-// }
-// else
-// {
-//     Environment.Exit(1);
-// }
+
+if (MatchPattern(inputLine, pattern))
+{
+    Environment.Exit(0);
+}
+else
+{
+    Environment.Exit(1);
+}
