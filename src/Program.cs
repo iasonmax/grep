@@ -6,6 +6,19 @@ static bool MatchPattern(string inputLine, string pattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\d");
     }
+    else if (pattern.StartsWith("[") && pattern.EndsWith("]"))
+    {
+        char[] charsToCheck = pattern.Substring(1, pattern.Length - 1).ToCharArray();
+        foreach (char c in charsToCheck)
+        {
+            if (inputLine.Contains(c))
+            {
+                return true;
+            }
+        }
+        return false;
+
+    }
     else if (pattern == @"\w")
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\w");
