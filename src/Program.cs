@@ -6,6 +6,10 @@ static bool MatchPattern(string inputLine, string pattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\d");
     }
+    else if (pattern == @"\w")
+    {
+        return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\w");
+    }
     else if (pattern.Length == 1)
     {
         return inputLine.Contains(pattern);
