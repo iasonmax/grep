@@ -6,15 +6,24 @@ static bool MatchPattern(string inputLine, string pattern)
     {
         return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\d");
     }
+    //Change to chack any possition of []
     else if (pattern.StartsWith("[") && pattern.EndsWith("]"))
     {
         char[] charsToCheck = pattern.Substring(1, pattern.Length - 1).ToCharArray();
+        if (charsToCheck[0] == '^')
+        {
+            for (int i = 1; i < charsToCheck.Length; i++)
+            {
+                if (inputLine.Contains(charsToCheck[i]))
+                    return false;
+            }
+            return true;
+        }
         foreach (char c in charsToCheck)
         {
             if (inputLine.Contains(c))
-            {
                 return true;
-            }
+
         }
         return false;
 
