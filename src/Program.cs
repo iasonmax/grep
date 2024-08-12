@@ -9,70 +9,70 @@ internal class Program
             return MatchHere(inputLine, pattern, inputLine);
         }
 
-        static bool MatchHere (string remainingInput, string pattern, string inputline)
+        static bool MatchHere(string remainingInput, string pattern2, string inputline2)
         {
-            if (pattern == "") return true;
+            if (pattern2 == "") return true;
             if (remainingInput == "") return false;
 
-            if (pattern.StartsWith("\\d"))
+            if (pattern2.StartsWith("\\d"))
             {
                 if (Char.IsDigit(remainingInput[0]))
                     return MatchHere(remainingInput.Substring(1),
-                        pattern.Substring(2),
-                        inputline);
+                        pattern2.Substring(2),
+                        inputline2);
 
                 else
                     return MatchHere(remainingInput.Substring(1),
-                        pattern,
-                        inputline);
+                        pattern2,
+                        inputline2);
             }
 
-            else if (pattern.StartsWith("\\w"))
+            else if (pattern2.StartsWith("\\w"))
             {
                 if (Char.IsLetterOrDigit(remainingInput[0]))
                     return MatchHere(remainingInput.Substring(1),
-                        pattern.Substring(2),
-                        inputLine);
+                        pattern2.Substring(2),
+                        inputline2);
 
                 else
                     return MatchHere(remainingInput.Substring(1),
-                        pattern,
-                        inputLine);
+                        pattern2,
+                        inputline2);
             }
 
-            else if (pattern.StartsWith("[^"))
+            else if (pattern2.StartsWith("[^"))
             {
 
                 string charactersInNegativeCharacterGroup =
 
-                    pattern.Substring(2, pattern.IndexOf(']') - 2);
+                    pattern2.Substring(2, pattern2.IndexOf(']') - 2);
 
                 if (!charactersInNegativeCharacterGroup.Contains(remainingInput[0]))
 
                     return MatchHere(remainingInput.Substring(1),
 
-                                     pattern.Substring(pattern.IndexOf(']') + 1),
+                                     pattern2.Substring(pattern2.IndexOf(']') + 1),
 
-                                     inputLine);
+                                     inputline2);
 
                 else
 
                     return false;
             }
-            else if (pattern.StartsWith("["))
+            else if (pattern2.StartsWith("["))
             {
 
                 string charactersInPositiveCharacterGroup =
 
-                    pattern.Substring(1, pattern.IndexOf(']') - 1);
+                    pattern2.Substring(1, pattern2.IndexOf(']') - 1);
 
                 if (charactersInPositiveCharacterGroup.Contains(remainingInput[0]))
 
                     return MatchHere(remainingInput.Substring(1),
 
-                                     pattern.Substring(pattern.IndexOf(']') + 1),
+                                     pattern2.Substring(pattern2.IndexOf(']') + 1),
 
-                                     inputLine);
+                                     inputline2);
 
                 else
 
@@ -80,21 +80,19 @@ internal class Program
             }
             else
             {
-                if (remainingInput[0] == pattern[0])
+                if (remainingInput[0] == pattern2[0])
 
-                    return MatchHere(remainingInput.Substring(1), pattern.Substring(1),
+                    return MatchHere(remainingInput.Substring(1), pattern2.Substring(1),
 
-                                     inputLine);
+                                     inputline2);
 
                 else
 
                     return false;
             }
+        }
 
-
-
-
-                if (args[0] != "-E")
+        if (args[0] != "-E")
         {
             Console.WriteLine("Expected first argument to be '-E'");
             Environment.Exit(2);
