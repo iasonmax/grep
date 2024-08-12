@@ -6,47 +6,95 @@ internal class Program
     {
         static bool MatchPattern(string inputLine, string pattern)
         {
-            if (pattern == @"\d")
-            {
-                return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\d");
-            }
-            //Change to chack any possition of []
-            else if (pattern.StartsWith("[") && pattern.EndsWith("]"))
-            {
-                char[] charsToCheck = pattern.Substring(1, pattern.Length - 1).ToCharArray();
-                if (charsToCheck[0] == '^')
-                {
-                    for (int i = 1; i < charsToCheck.Length; i++)
-                    {
-                        if (inputLine.Contains(charsToCheck[i]))
-                            return false;
-                    }
-                    return true;
-                }
-                foreach (char c in charsToCheck)
-                {
-                    if (inputLine.Contains(c))
-                        return true;
+            return MatchHere(inputLine, pattern, inputLine);
+        }
 
-                }
-                return false;
+        static bool MatchHere (string remainingInput, string pattern, string inputline)
+        {
+            if (pattern == "") return true;
+            if (remainingInput == "") return false;
 
-            }
-            else if (pattern == @"\w")
+            if (pattern.StartsWith("\\d"))
             {
-                return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\w");
+                if (Char.IsDigit(remainingInput[0]))
+                    return MatchHere(remainingInput.Substring(1),
+                        pattern.Substring(2),
+                        inputline);
+
+                else
+                    return MatchHere(remainingInput.Substring(1),
+                        pattern,
+                        inputline);
             }
-            else if (pattern.Length == 1)
+
+            else if (pattern.StartsWith("\\w"))
             {
-                return inputLine.Contains(pattern);
+                if (Char.IsLetterOrDigit(remainingInput[0]))
+                    return MatchHere(remainingInput.Substring(1),
+                        pattern.Substring(2),
+                        inputLine);
+
+                else
+                    return MatchHere(remainingInput.Substring(1),
+                        pattern,
+                        inputLine);
+            }
+
+            else if (pattern.StartsWith("[^"))
+            {
+
+                string charactersInNegativeCharacterGroup =
+
+                    pattern.Substring(2, pattern.IndexOf(']') - 2);
+
+                if (!charactersInNegativeCharacterGroup.Contains(remainingInput[0]))
+
+                    return MatchHere(remainingInput.Substring(1),
+
+                                     pattern.Substring(pattern.IndexOf(']') + 1),
+
+                                     inputLine);
+
+                else
+
+                    return false;
+            }
+            else if (pattern.StartsWith("["))
+            {
+
+                string charactersInPositiveCharacterGroup =
+
+                    pattern.Substring(1, pattern.IndexOf(']') - 1);
+
+                if (charactersInPositiveCharacterGroup.Contains(remainingInput[0]))
+
+                    return MatchHere(remainingInput.Substring(1),
+
+                                     pattern.Substring(pattern.IndexOf(']') + 1),
+
+                                     inputLine);
+
+                else
+
+                    return false;
             }
             else
             {
-                throw new ArgumentException($"Unhandled pattern: {pattern}");
-            }
-        }
+                if (remainingInput[0] == pattern[0])
 
-        if (args[0] != "-E")
+                    return MatchHere(remainingInput.Substring(1), pattern.Substring(1),
+
+                                     inputLine);
+
+                else
+
+                    return false;
+            }
+
+
+
+
+                if (args[0] != "-E")
         {
             Console.WriteLine("Expected first argument to be '-E'");
             Environment.Exit(2);
