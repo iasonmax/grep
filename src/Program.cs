@@ -1,65 +1,73 @@
 using System;
 
-static bool MatchPattern(string inputLine, string pattern)
+internal class Program
 {
-    if (pattern == @"\d")
+    private static void Main(string[] args)
     {
-        return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\d");
-    }
-    //Change to chack any possition of []
-    else if (pattern.StartsWith("[") && pattern.EndsWith("]"))
-    {
-        char[] charsToCheck = pattern.Substring(1, pattern.Length - 1).ToCharArray();
-        if (charsToCheck[0] == '^')
+        static bool MatchPattern(string inputLine, string pattern)
         {
-            for (int i = 1; i < charsToCheck.Length; i++)
+            if (pattern == @"\d")
             {
-                if (inputLine.Contains(charsToCheck[i]))
-                    return false;
+                return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\d");
             }
-            return true;
+            //Change to chack any possition of []
+            else if (pattern.StartsWith("[") && pattern.EndsWith("]"))
+            {
+                char[] charsToCheck = pattern.Substring(1, pattern.Length - 1).ToCharArray();
+                if (charsToCheck[0] == '^')
+                {
+                    for (int i = 1; i < charsToCheck.Length; i++)
+                    {
+                        if (inputLine.Contains(charsToCheck[i]))
+                            return false;
+                    }
+                    return true;
+                }
+                foreach (char c in charsToCheck)
+                {
+                    if (inputLine.Contains(c))
+                        return true;
+
+                }
+                return false;
+
+            }
+            else if (pattern == @"\w")
+            {
+                return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\w");
+            }
+            else if (pattern.Length == 1)
+            {
+                return inputLine.Contains(pattern);
+            }
+            else
+            {
+                throw new ArgumentException($"Unhandled pattern: {pattern}");
+            }
         }
-        foreach (char c in charsToCheck)
+
+        if (args[0] != "-E")
         {
-            if (inputLine.Contains(c))
-                return true;
-
+            Console.WriteLine("Expected first argument to be '-E'");
+            Environment.Exit(2);
         }
-        return false;
 
+        string pattern = args[1];
+        string inputLine = Console.In.ReadToEnd();
+
+        // You can use print statements as follows for debugging, they'll be visible when running tests.
+        Console.WriteLine("Logs from your program will appear here!");
+
+
+        if (MatchPattern(inputLine, pattern))
+        {
+            Console.WriteLine("Exit:0");
+            Environment.Exit(0);
+        }
+        else
+        {
+            Console.WriteLine("Exit:1");
+            Environment.Exit(1);
+        }
     }
-    else if (pattern == @"\w")
-    {
-        return System.Text.RegularExpressions.Regex.IsMatch(inputLine, @"\w");
-    }
-    else if (pattern.Length == 1)
-    {
-        return inputLine.Contains(pattern);
-    }
-    else
-    {
-        throw new ArgumentException($"Unhandled pattern: {pattern}");
-    }
-}
-
-if (args[0] != "-E")
-{
-    Console.WriteLine("Expected first argument to be '-E'");
-    Environment.Exit(2);
-}
-
-string pattern = args[1];
-string inputLine = Console.In.ReadToEnd();
-
-// You can use print statements as follows for debugging, they'll be visible when running tests.
-Console.WriteLine("Logs from your program will appear here!");
-
-
-if (MatchPattern(inputLine, pattern))
-{
-    Environment.Exit(0);
-}
-else
-{
-    Environment.Exit(1);
 }
