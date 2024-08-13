@@ -4,6 +4,7 @@ internal class Program
 {
     private static void Main(string[] args)
     {
+
         static bool MatchPattern(string inputLine, string pattern)
         {
             if (pattern.StartsWith('^'))
@@ -20,7 +21,6 @@ internal class Program
                     string[] newInputlineArray = new string[patternArray.Length];
 
                     Array.Copy(inputlineArray, startIndex, newInputlineArray, 0, patternArray.Length);
-
                     string newInputline = string.Join(" ", newInputlineArray);
 
                     return MatchHere(newInputline, pattern, newInputline);
@@ -29,8 +29,6 @@ internal class Program
             }
             if (pattern.EndsWith('$'))
             {
-                pattern = pattern.Substring(0, pattern.Length - 1);
-
                 string[] patternArray = pattern.Split(" ");
                 string[] inputlineArray = inputLine.Split(" ");
 
@@ -49,10 +47,13 @@ internal class Program
             return MatchHere(inputLine, pattern, inputLine);
         }
 
+
         static bool MatchHere(string remainingInput, string pattern2, string inputline2)
         {
             if (pattern2 == "") return true;
+            if (pattern2 == "$" && remainingInput == "") return true;
             if (remainingInput == "") return false;
+
 
             if (pattern2.StartsWith("\\d"))
             {
@@ -131,7 +132,7 @@ internal class Program
                     return false;
             }
         }
-
+        #region Main
         if (args[0] != "-E")
         {
             Console.WriteLine("Expected first argument to be '-E'");
@@ -155,5 +156,6 @@ internal class Program
             Console.WriteLine("Exit:1");
             Environment.Exit(1);
         }
+        #endregion
     }
 }
