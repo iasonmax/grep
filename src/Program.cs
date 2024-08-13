@@ -6,6 +6,21 @@ internal class Program
     {
         static bool MatchPattern(string inputLine, string pattern)
         {
+            if (pattern.StartsWith('^'))
+            {
+                pattern = pattern.Substring(1);
+                string[] patternArray = pattern.Split(" ");
+                string[] inputlineArray = inputLine.Split(" ");
+                string[] newInputlineArray = new string[patternArray.Length];
+
+                Array.Copy(inputlineArray, newInputlineArray, patternArray.Length);
+
+                string newInputline = string.Join(" ", newInputlineArray);
+                Console.WriteLine(newInputline + " " + pattern);
+
+                return MatchHere(newInputline, pattern, newInputline);
+            }
+            Console.WriteLine("poop");
             return MatchHere(inputLine, pattern, inputLine);
         }
 
