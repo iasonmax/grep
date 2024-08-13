@@ -9,18 +9,43 @@ internal class Program
             if (pattern.StartsWith('^'))
             {
                 pattern = pattern.Substring(1);
+
                 string[] patternArray = pattern.Split(" ");
                 string[] inputlineArray = inputLine.Split(" ");
-                string[] newInputlineArray = new string[patternArray.Length];
 
-                Array.Copy(inputlineArray, newInputlineArray, patternArray.Length);
+                if (patternArray.Length <= inputlineArray.Length)
+                {
+                    int startIndex = inputlineArray.Length - patternArray.Length;
 
-                string newInputline = string.Join(" ", newInputlineArray);
-                Console.WriteLine(newInputline + " " + pattern);
+                    string[] newInputlineArray = new string[patternArray.Length];
 
-                return MatchHere(newInputline, pattern, newInputline);
+                    Array.Copy(inputlineArray, startIndex, newInputlineArray, 0, patternArray.Length);
+
+                    string newInputline = string.Join(" ", newInputlineArray);
+
+                    return MatchHere(newInputline, pattern, newInputline);
+                }
+                else return false;
             }
-            Console.WriteLine("poop");
+            if (pattern.EndsWith('$'))
+            {
+                pattern = pattern.Substring(0, pattern.Length - 1);
+
+                string[] patternArray = pattern.Split(" ");
+                string[] inputlineArray = inputLine.Split(" ");
+
+                if (patternArray.Length <= inputlineArray.Length)
+                {
+                    string[] newInputlineArray = new string[patternArray.Length];
+                    Array.Copy(inputlineArray, newInputlineArray, patternArray.Length);
+                    string newInputline = string.Join(" ", newInputlineArray);
+
+                    return MatchHere(newInputline, pattern, newInputline);
+                }
+                else return false;
+
+            }
+
             return MatchHere(inputLine, pattern, inputLine);
         }
 
