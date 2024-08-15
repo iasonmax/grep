@@ -47,19 +47,19 @@ internal class Program
             if (patternIndex == pattern.Length) return true;
             if (inputIndex == inputLine.Length) return false;
 
-            if (IsPlusOperator(pattern,patternIndex)
+            if (IsPlusOperator(pattern, patternIndex))
             {
-                return MatchOneMore(inputLine, pattern, inputIndex, patternIndex);
+                return MatchOneOrMore(inputLine, pattern, inputIndex, patternIndex);
             }
-            
+
             if (pattern[patternIndex] == '\\')
             {
-                return MatchEscapeSequense(inputLine, pattern, inputIndex, patternIndex)
+                return MatchEscapeSequence(inputLine, pattern, inputIndex, patternIndex);
             }
 
             if (pattern[patternIndex] == '[')
             {
-                return MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex)
+                return MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex);
             }
 
             if (pattern[patternIndex] == '$')
@@ -81,7 +81,7 @@ internal class Program
 
         static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex)
         {
-            
+
             if (!MatchHere(inputLine, pattern, patternIndex, inputIndex)) return false;
 
             // Consume one matching element, then attempt to match the rest
