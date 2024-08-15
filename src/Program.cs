@@ -82,7 +82,7 @@ internal class Program
         static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex)
         {
 
-            if (!MatchHere(inputLine, pattern, patternIndex, inputIndex)) return false;
+            if (!MatchHere(inputLine, pattern, inputIndex, patternIndex)) return false;
 
             // Consume one matching element, then attempt to match the rest
             do
