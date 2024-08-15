@@ -7,131 +7,131 @@ internal class Program
 
         static bool MatchPattern(string inputLine, string pattern)
         {
+
+            // Handle the case where pattern starts with '^'
             if (pattern.StartsWith('^'))
             {
                 pattern = pattern.Substring(1);
-
-                string[] patternArray = pattern.Split(" ");
-                string[] inputlineArray = inputLine.Split(" ");
-
-                if (patternArray.Length <= inputlineArray.Length)
-                {
-                    int startIndex = inputlineArray.Length - patternArray.Length;
-
-                    string[] newInputlineArray = new string[patternArray.Length];
-
-                    Array.Copy(inputlineArray, startIndex, newInputlineArray, 0, patternArray.Length);
-                    string newInputline = string.Join(" ", newInputlineArray);
-
-                    return MatchHere(newInputline, pattern, newInputline);
-                }
-                else return false;
+                return MatchHere(inputLine, pattern);
             }
+
+            // Handle the case where pattern ends with '$'
             if (pattern.EndsWith('$'))
             {
-                string[] patternArray = pattern.Split(" ");
-                string[] inputlineArray = inputLine.Split(" ");
-
-                if (patternArray.Length <= inputlineArray.Length)
+                pattern = pattern.Substring(0, pattern.Length - 1);
+                // Ensure the match is at the end
+                int startIndex = inputLine.Length - pattern.Length;
+                if (startIndex >= 0)
                 {
-                    string[] newInputlineArray = new string[patternArray.Length];
-                    Array.Copy(inputlineArray, newInputlineArray, patternArray.Length);
-                    string newInputline = string.Join(" ", newInputlineArray);
-
-                    return MatchHere(newInputline, pattern, newInputline);
+                    string endSubstring = inputLine.Substring(startIndex);
+                    return MatchHere(endSubstring, pattern);
                 }
-                else return false;
-
+                return false;
             }
 
-            return MatchHere(inputLine, pattern, inputLine);
+            // General case: check if the pattern matches anywhere in the inputLine
+            for (int i = 0; i <= inputLine.Length - pattern.Length; i++)
+            {
+                if (MatchHere(inputLine.Substring(i), pattern))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
-
-        static bool MatchHere(string remainingInput, string pattern2, string inputline2)
+        static bool MatchHere(string inputLine, string pattern, int patternIndex = 0, int inputIndex = 0)
         {
-            if (pattern2 == "") return true;
-            if (pattern2 == "$" && remainingInput == "") return true;
-            if (remainingInput == "") return false;
+            //escapes
+            if (patternIndex == pattern.Length) return true;
+            if (inputIndex == inputLine.Length) return false;
 
-
-            if (pattern2.StartsWith("\\d"))
+            if (IsPlusOperator(pattern,patternIndex)
             {
-                if (Char.IsDigit(remainingInput[0]))
-                    return MatchHere(remainingInput.Substring(1),
-                        pattern2.Substring(2),
-                        inputline2);
-
-                else
-                    return MatchHere(remainingInput.Substring(1),
-                        pattern2,
-                        inputline2);
+                return MatchOneMore(inputLine, pattern, inputIndex, patternIndex);
+            }
+            
+            if (pattern[patternIndex] == '\\')
+            {
+                return MatchEscapeSequense(inputLine, pattern, inputIndex, patternIndex)
             }
 
-            else if (pattern2.StartsWith("\\w"))
+            if (pattern[patternIndex] == '[')
             {
-                if (Char.IsLetterOrDigit(remainingInput[0]))
-                    return MatchHere(remainingInput.Substring(1),
-                        pattern2.Substring(2),
-                        inputline2);
-
-                else
-                    return MatchHere(remainingInput.Substring(1),
-                        pattern2,
-                        inputline2);
+                return MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex)
             }
 
-            else if (pattern2.StartsWith("[^"))
+            if (pattern[patternIndex] == '$')
             {
-
-                string charactersInNegativeCharacterGroup =
-
-                    pattern2.Substring(2, pattern2.IndexOf(']') - 2);
-
-                if (!charactersInNegativeCharacterGroup.Contains(remainingInput[0]))
-
-                    return MatchHere(remainingInput.Substring(1),
-
-                                     pattern2.Substring(pattern2.IndexOf(']') + 1),
-
-                                     inputline2);
-
-                else
-
-                    return false;
+                return inputIndex == inputLine.Length;
             }
-            else if (pattern2.StartsWith("["))
+            if (inputLine[inputIndex] == pattern[patternIndex])
             {
-
-                string charactersInPositiveCharacterGroup =
-
-                    pattern2.Substring(1, pattern2.IndexOf(']') - 1);
-
-                if (charactersInPositiveCharacterGroup.Contains(remainingInput[0]))
-
-                    return MatchHere(remainingInput.Substring(1),
-
-                                     pattern2.Substring(pattern2.IndexOf(']') + 1),
-
-                                     inputline2);
-
-                else
-
-                    return false;
+                return MatchHere(inputLine, pattern, patternIndex + 1, inputIndex + 1);
             }
-            else
-            {
-                if (remainingInput[0] == pattern2[0])
-
-                    return MatchHere(remainingInput.Substring(1), pattern2.Substring(1),
-
-                                     inputline2);
-
-                else
-
-                    return false;
-            }
+            return false;
         }
+
+        static bool IsPlusOperator(string pattern, int patternIndex)
+        {
+            return patternIndex + 1 < pattern.Length && pattern[patternIndex + 1] == '+';
+        }
+
+
+        static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex)
+        {
+            
+            if (!MatchHere(inputLine, pattern, patternIndex, inputIndex)) return false;
+
+            // Consume one matching element, then attempt to match the rest
+            do
+            {
+                inputIndex++;
+            } while (inputIndex < inputLine.Length && MatchHere(inputLine, pattern, inputIndex, patternIndex));
+
+            return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+        }
+
+
+        static bool MatchEscapeSequence(string inputLine, string pattern, int inputIndex, int patternIndex)
+        {
+            if (patternIndex + 1 >= pattern.Length) return false;
+
+            switch (pattern[patternIndex + 1])
+            {
+                case 'd':
+                    if (Char.IsDigit(inputLine[inputIndex]))
+                        return MatchHere(inputLine, pattern, patternIndex + 2, inputIndex + 1);
+                    break;
+                case 'w':
+                    if (Char.IsLetterOrDigit(inputLine[inputIndex]))
+                        return MatchHere(inputLine, pattern, patternIndex + 2, inputIndex + 1);
+                    break;
+            }
+
+            return false;
+        }
+
+        static bool MatchCharacterClass(string inputLine, string pattern, int inputIndex, int patternIndex)
+        {
+            int closingBracketIndex = pattern.IndexOf(']', patternIndex);
+            if (closingBracketIndex == -1) return false;
+
+            bool isNegated = pattern[patternIndex + 1] == '^';
+            int charGroupStartIndex = isNegated ? patternIndex + 2 : patternIndex + 1;
+            string charactersInGroup = pattern.Substring(charGroupStartIndex, closingBracketIndex - charGroupStartIndex);
+            char inputChar = inputLine[inputIndex];
+            bool charInGroup = charactersInGroup.Contains(inputChar);
+
+            if ((isNegated && !charInGroup) || (!isNegated && charInGroup))
+            {
+                return MatchHere(inputLine, pattern, inputIndex + 1, closingBracketIndex + 1);
+            }
+
+            return false;
+        }
+
         #region Main
         if (args[0] != "-E")
         {
