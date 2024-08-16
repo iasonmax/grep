@@ -38,17 +38,15 @@ internal class Program
                     return true;
                 }
             }
-
-            return true;
+            Console.WriteLine("tom");
+            return false;
         }
 
         static bool MatchHere(string inputLine, string pattern, int inputIndex = 0, int patternIndex = 0)
         {
-            Console.WriteLine("patternIndex :" + patternIndex);
-
             //escapes
-            if (patternIndex >= pattern.Length) return true;
-            if (inputIndex >= inputLine.Length) return false;
+            if (patternIndex == pattern.Length) return true;
+            if (inputIndex == inputLine.Length) return false;
             if (IsPlusOperator(pattern, patternIndex))
             {
                 return MatchOneOrMore(inputLine, pattern, inputIndex, patternIndex);
@@ -94,7 +92,6 @@ internal class Program
 
         static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex, bool checkedAtLeastOnce = false)
         {
-            Console.WriteLine(" Hit");
 
             if (pattern[patternIndex] == '\\')
             {
