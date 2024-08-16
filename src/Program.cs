@@ -32,21 +32,23 @@ internal class Program
             // General case: check if the pattern matches anywhere in the inputLine
             for (int i = 0; i <= inputLine.Length - pattern.Length; i++)
             {
+
                 if (MatchHere(inputLine.Substring(i), pattern))
                 {
                     return true;
                 }
             }
 
-            return false;
+            return true;
         }
 
-        static bool MatchHere(string inputLine, string pattern, int patternIndex = 0, int inputIndex = 0)
+        static bool MatchHere(string inputLine, string pattern, int inputIndex = 0, int patternIndex = 0)
         {
-            //escapes
-            if (patternIndex == pattern.Length) return true;
-            if (inputIndex == inputLine.Length) return false;
+            Console.WriteLine("patternIndex :" + patternIndex);
 
+            //escapes
+            if (patternIndex >= pattern.Length) return true;
+            if (inputIndex >= inputLine.Length) return false;
             if (IsPlusOperator(pattern, patternIndex))
             {
                 return MatchOneOrMore(inputLine, pattern, inputIndex, patternIndex);
@@ -54,12 +56,15 @@ internal class Program
 
             if (pattern[patternIndex] == '\\')
             {
-                return MatchEscapeSequence(inputLine, pattern, inputIndex, patternIndex);
+                if (MatchEscapeSequence(inputLine, pattern, inputIndex, patternIndex))
+                    return MatchHere(inputLine, pattern, inputIndex + 1, patternIndex + 2);
             }
 
             if (pattern[patternIndex] == '[')
             {
-                return MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex);
+                if (MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex))
+                    return MatchHere(inputLine, pattern, inputIndex + 1, pattern.IndexOf(']', patternIndex) + 1);
+
             }
 
             if (pattern[patternIndex] == '$')
@@ -68,31 +73,57 @@ internal class Program
             }
             if (inputLine[inputIndex] == pattern[patternIndex])
             {
-                return MatchHere(inputLine, pattern, patternIndex + 1, inputIndex + 1);
+                return MatchHere(inputLine, pattern, inputIndex + 1, patternIndex + 1);
             }
             return false;
         }
 
         static bool IsPlusOperator(string pattern, int patternIndex)
         {
-            return patternIndex + 1 < pattern.Length && pattern[patternIndex + 1] == '+';
-        }
-
-
-        static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex)
-        {
-
-            if (!MatchHere(inputLine, pattern, inputIndex, patternIndex)) return false;
-
-            // Consume one matching element, then attempt to match the rest
-            do
+            if (patternIndex + 1 < pattern.Length)
             {
-                inputIndex++;
-            } while (inputIndex < inputLine.Length && MatchHere(inputLine, pattern, inputIndex, patternIndex));
+                if (pattern[patternIndex] == '\\')
+                    return patternIndex + 1 < pattern.Length && pattern[patternIndex + 2] == '+';
+                if (pattern[patternIndex] == '[')
+                    return patternIndex + 1 < pattern.Length && pattern.IndexOf(']', patternIndex) + 1 == '+';
 
-            return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+                return pattern[patternIndex + 1] == '+';
+            }
+            return false;
         }
 
+        static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex, bool checkedAtLeastOnce = false)
+        {
+            Console.WriteLine(" Hit");
+
+            if (pattern[patternIndex] == '\\')
+            {
+                if (MatchEscapeSequence(inputLine, pattern, inputIndex, patternIndex))
+                    return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, checkedAtLeastOnce = true);
+            }
+            if (pattern[patternIndex] == '[')
+            {
+                if (MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex))
+                    return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, checkedAtLeastOnce = true);
+
+            }
+            if (inputLine[inputIndex] == pattern[patternIndex])
+            {
+                return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, checkedAtLeastOnce = true);
+            }
+            if (checkedAtLeastOnce)
+            {
+                if (pattern[patternIndex] == '\\')
+                    return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+                if (pattern[patternIndex] == '[')
+                    return MatchHere(inputLine, pattern, inputIndex, pattern.IndexOf(']', patternIndex) + 2);
+                return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+            }
+            return false;
+
+
+
+        }
 
         static bool MatchEscapeSequence(string inputLine, string pattern, int inputIndex, int patternIndex)
         {
@@ -102,11 +133,11 @@ internal class Program
             {
                 case 'd':
                     if (Char.IsDigit(inputLine[inputIndex]))
-                        return MatchHere(inputLine, pattern, patternIndex + 2, inputIndex + 1);
+                        return true;
                     break;
                 case 'w':
                     if (Char.IsLetterOrDigit(inputLine[inputIndex]))
-                        return MatchHere(inputLine, pattern, patternIndex + 2, inputIndex + 1);
+                        return true;
                     break;
             }
 
@@ -126,7 +157,7 @@ internal class Program
 
             if ((isNegated && !charInGroup) || (!isNegated && charInGroup))
             {
-                return MatchHere(inputLine, pattern, inputIndex + 1, closingBracketIndex + 1);
+                return true;
             }
 
             return false;
