@@ -79,7 +79,7 @@ internal class Program
             if (patternIndex + 1 < pattern.Length)
             {
                 if (pattern[patternIndex] == '\\')
-                    return patternIndex + 1 < pattern.Length && pattern[patternIndex + 2] == '+';
+                    return patternIndex + 2 < pattern.Length && pattern[patternIndex + 2] == '+';
                 if (pattern[patternIndex] == '[')
                     return patternIndex + 1 < pattern.Length && pattern.IndexOf(']', patternIndex) + 1 == '+';
 
