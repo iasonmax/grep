@@ -30,15 +30,13 @@ internal class Program
             }
 
             // General case: check if the pattern matches anywhere in the inputLine
-            for (int i = 0; i <= inputLine.Length - pattern.Length; i++)
+            for (int i = 0; i <= inputLine.Length; i++)
             {
-
                 if (MatchHere(inputLine.Substring(i), pattern))
                 {
                     return true;
                 }
             }
-            Console.WriteLine("tom");
             return false;
         }
 
@@ -92,7 +90,6 @@ internal class Program
 
         static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex, bool checkedAtLeastOnce = false)
         {
-
             if (pattern[patternIndex] == '\\')
             {
                 if (MatchEscapeSequence(inputLine, pattern, inputIndex, patternIndex))
