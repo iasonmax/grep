@@ -67,7 +67,7 @@ internal class Program
             {
                 return inputIndex == inputLine.Length;
             }
-            if (inputLine[inputIndex] == pattern[patternIndex])
+            if (inputLine[inputIndex] == pattern[patternIndex] || pattern[patternIndex] == '.')
             {
                 return MatchHere(inputLine, pattern, inputIndex + 1, patternIndex + 1);
             }
