@@ -45,7 +45,7 @@ internal class Program
             //escapes
             if (patternIndex == pattern.Length) return true;
             if (inputIndex == inputLine.Length) return false;
-            if (IsPlusOperator(pattern, patternIndex))
+            if (IsPlusOperator(pattern, patternIndex) || IsPlusZeroOrOneOperator(pattern, patternIndex))
             {
                 return MatchOneOrMore(inputLine, pattern, inputIndex, patternIndex);
             }
@@ -88,24 +88,56 @@ internal class Program
             return false;
         }
 
-        static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex, bool checkedAtLeastOnce = false)
+        static bool IsPlusZeroOrOneOperator(string pattern, int patternIndex)
         {
+            if (patternIndex + 1 < pattern.Length)
+            {
+                if (pattern[patternIndex] == '\\')
+                    return patternIndex + 2 < pattern.Length && pattern[patternIndex + 2] == '?';
+                if (pattern[patternIndex] == '[')
+                    return patternIndex + 1 < pattern.Length && pattern.IndexOf(']', patternIndex) + 1 == '?';
+
+                return pattern[patternIndex + 1] == '?';
+            }
+            return false;
+        }
+
+        static bool MatchOneOrMore(string inputLine, string pattern, int inputIndex, int patternIndex, int timesChecked = 0)
+        {
+            if (inputIndex == inputLine.Length)
+            {
+                if (pattern[patternIndex] == '\\')
+                    return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+                if (pattern[patternIndex] == '[')
+                    return MatchHere(inputLine, pattern, inputIndex, pattern.IndexOf(']', patternIndex) + 2);
+                return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+            }
             if (pattern[patternIndex] == '\\')
             {
                 if (MatchEscapeSequence(inputLine, pattern, inputIndex, patternIndex))
-                    return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, checkedAtLeastOnce = true);
+                    return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, timesChecked + 1);
             }
             if (pattern[patternIndex] == '[')
             {
                 if (MatchCharacterClass(inputLine, pattern, inputIndex, patternIndex))
-                    return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, checkedAtLeastOnce = true);
+                    return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, timesChecked + 1);
 
             }
             if (inputLine[inputIndex] == pattern[patternIndex])
             {
-                return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, checkedAtLeastOnce = true);
+                return MatchOneOrMore(inputLine, pattern, inputIndex + 1, patternIndex, timesChecked + 1);
             }
-            if (checkedAtLeastOnce)
+
+            if (timesChecked <= 1 && IsPlusZeroOrOneOperator(pattern, patternIndex))
+            {
+                if (pattern[patternIndex] == '\\')
+                    return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+                if (pattern[patternIndex] == '[')
+                    return MatchHere(inputLine, pattern, inputIndex, pattern.IndexOf(']', patternIndex) + 2);
+                return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
+            }
+
+            if (timesChecked >= 1 && IsPlusOperator(pattern, patternIndex))
             {
                 if (pattern[patternIndex] == '\\')
                     return MatchHere(inputLine, pattern, inputIndex, patternIndex + 2);
