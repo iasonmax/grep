@@ -7,19 +7,42 @@ internal class Program
 
         static bool MatchPattern(string inputLine, string pattern)
         {
+            if (pattern.Contains('(') && pattern.Contains(')'))
+            {
+                int openParenIndex = pattern.IndexOf('(');
+                int closeParenIndex = pattern.LastIndexOf(')');
+                string beforeGroup = pattern.Substring(0, openParenIndex);
+                string group = pattern.Substring(openParenIndex + 1, closeParenIndex - openParenIndex - 1);
+                string afterGroup = pattern.Substring(closeParenIndex + 1);
 
-            // Handle the case where pattern starts with '^'
+                // Split the group by '|'
+                string[] subPatterns = group.Split('|');
+
+                foreach (var subPattern in subPatterns)
+                {
+                    // Reconstruct the full pattern with the current subpattern
+                    string fullPattern = beforeGroup + subPattern + afterGroup;
+                    if (MatchPattern(inputLine, fullPattern))
+                    {
+                        return true;
+                    }
+                }
+
+                return false;
+            }
+
             if (pattern.StartsWith('^'))
             {
                 pattern = pattern.Substring(1);
+
                 return MatchHere(inputLine, pattern);
             }
 
-            // Handle the case where pattern ends with '$'
+
             if (pattern.EndsWith('$'))
             {
                 pattern = pattern.Substring(0, pattern.Length - 1);
-                // Ensure the match is at the end
+
                 int startIndex = inputLine.Length - pattern.Length;
                 if (startIndex >= 0)
                 {
@@ -29,7 +52,7 @@ internal class Program
                 return false;
             }
 
-            // General case: check if the pattern matches anywhere in the inputLine
+
             for (int i = 0; i <= inputLine.Length; i++)
             {
                 if (MatchHere(inputLine.Substring(i), pattern))
